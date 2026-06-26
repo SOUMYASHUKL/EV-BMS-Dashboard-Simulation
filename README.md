@@ -1,6 +1,6 @@
 # EV Battery Management System (BMS) Dashboard & Cell Balancing Simulation
 ## Project Images
-![Full Simulink Model](Screenshots/Screenshots/model.png)
+![Full Simulink Model](Screenshots/model.png)
 
 ## Project Overview
 This repository contains a Battery Management System (BMS) developed using MATLAB and Simulink for Electric Vehicle (EV) applications. The project focuses on battery monitoring, safety protection, fault detection, passive cell balancing, and battery state estimation. The simulation demonstrates how a BMS can monitor battery health, protect the battery pack, and improve operational safety.
