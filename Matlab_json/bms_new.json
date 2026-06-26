@@ -1,0 +1,193 @@
+{
+  "Metadata": {
+    "Project_Name": "Comprehensive BMS & Cell Balancing System",
+    "Version": "Day 10 - Final Architecture",
+    "Developer": "Soumya Shukla"
+  },
+  "BMS_Main_Controller": {
+    "Inputs": [
+      {
+        "Signal": "I",
+        "Description": "Pack Current (Positive: Discharge, Negative: Charge)",
+        "Unit": "A"
+      },
+      {
+        "Signal": "V",
+        "Description": "Total Pack Voltage",
+        "Unit": "V"
+      },
+      {
+        "Signal": "T",
+        "Description": "Battery Temperature",
+        "Unit": "degC"
+      },
+      {
+        "Signal": "Ts",
+        "Description": "Sample Time",
+        "Unit": "sec"
+      },
+      {
+        "Signal": "SOC_prev",
+        "Description": "Previous State of Charge (Feedback Loop)",
+        "Unit": "Ratio (0-1)"
+      },
+      {
+        "Signal": "SOH_prev",
+        "Description": "Previous State of Health (Feedback Loop)",
+        "Unit": "Ratio (0-1)"
+      }
+    ],
+    "Parameters": {
+      "Battery_Capacity_Ah": 50,
+      "Voltage_Limits": {
+        "V_min": 42,
+        "V_max": 54
+      },
+      "Current_Limits": {
+        "I_chg_max": 5,
+        "I_dis_max": 8,
+        "I_short": 20
+      },
+      "Temperature_Limits": {
+        "T_min": 0,
+        "T_max": 60
+      },
+      "SOC_Thresholds": {
+        "SOC_cutoff": 0.2,
+        "SOC_recover": 0.25
+      }
+    },
+    "Outputs": [
+      {
+        "Signal": "SOC",
+        "Type": "Estimation Output",
+        "Range": "0.0 to 1.0"
+      },
+      {
+        "Signal": "SOH",
+        "Type": "Estimation Output",
+        "Range": "0.70 to 1.0"
+      },
+      {
+        "Signal": "Charge_Enable",
+        "Type": "Contactor Control (Boolean)",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "Discharge_Enable",
+        "Type": "Contactor Control (Boolean)",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "OV",
+        "Type": "Over-Voltage Fault Flag",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "UV",
+        "Type": "Under-Voltage Fault Flag",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "OC_Charge",
+        "Type": "Over-Current Charge Fault Flag",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "OC_Discharge",
+        "Type": "Over-Current Discharge Fault Flag",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "SC",
+        "Type": "Short-Circuit Fault Flag",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "OT",
+        "Type": "Over-Temperature Fault Flag",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "UT",
+        "Type": "Under-Temperature Fault Flag",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "SOC_Low",
+        "Type": "Low-SOC Protection Flag",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "Fault_Code",
+        "Type": "Bit-Mapped Professional Output",
+        "Range": "0 to 255"
+      }
+    ],
+    "Fault_Bit_Mapping": {
+      "Bit_0_OV": 1,
+      "Bit_1_UV": 2,
+      "Bit_2_OC_Charge": 4,
+      "Bit_3_OC_Discharge": 8,
+      "Bit_4_SC": 16,
+      "Bit_5_OT": 32,
+      "Bit_6_UT": 64,
+      "Bit_7_SOC_Low": 128
+    }
+  },
+  "Cell_Balancing_System": {
+    "Inputs": [
+      {
+        "Signal": "V1",
+        "Description": "Cell 1 Voltage (Simulated Initial: 3.45V)",
+        "Unit": "V"
+      },
+      {
+        "Signal": "V2",
+        "Description": "Cell 2 Voltage (Simulated Initial: 3.35V)",
+        "Unit": "V"
+      },
+      {
+        "Signal": "V3",
+        "Description": "Cell 3 Voltage (Simulated Initial: 3.25V)",
+        "Unit": "V"
+      },
+      {
+        "Signal": "V4",
+        "Description": "Cell 4 Voltage (Simulated Initial: 3.15V)",
+        "Unit": "V"
+      },
+      {
+        "Signal": "Charge_Enable",
+        "Description": "Master Activation Signal from Main BMS",
+        "Value": "0 or 1"
+      }
+    ],
+    "Parameters": {
+      "DeltaV_min": 0.02,
+      "V_balance_start": 3
+    },
+    "Outputs": [
+      {
+        "Signal": "Bal1",
+        "Description": "Cell 1 Bleeding Switch Command",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "Bal2",
+        "Description": "Cell 2 Bleeding Switch Command",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "Bal3",
+        "Description": "Cell 3 Bleeding Switch Command",
+        "Value": "0 or 1"
+      },
+      {
+        "Signal": "Bal4",
+        "Description": "Cell 4 Bleeding Switch Command",
+        "Value": "0 or 1"
+      }
+    ]
+  }
+}
