@@ -100,3 +100,23 @@ EV-BMS-Dashboard-Simulation
 ├── Report/
 │   └── BMS_Project_Report.pdf
 └── README.md
+🛠️ Technologies Used
+MATLAB & Simulink
+
+Simscape Electrical (Physical Systems Modeling)
+
+Embedded C Control Logic Blocks
+
+🚀 Future Horizons
+Physical CAN Bus Network Protocols Streaming Integration.
+
+Extended Kalman Filtering (EKF) configurations for State of Health (SOH) Estimation.
+
+Microcontroller target code compilation for ARM Cortex-M (STM32) hardware platforms.
+
+👤 Author
+Soumya Shukla
+
+B.Tech in Electrical & Electronics Engineering (6th Semester)
+
+Core Interests: Electric Vehicles (EVs), Battery Management Systems (BMS), Embedded Control Firmware, Power Electronics.
