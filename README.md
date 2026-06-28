@@ -1,172 +1,102 @@
 # EV Battery Management System (BMS) Dashboard & Cell Balancing Simulation
-## Project Images
+
+## 📄 Project Documentation & Report
+Aap is project ki complete technical documentation, formulas aur simulation graphs ki detailed PDF report yahan se direct view aur download kar sakte hain:
+
+👉 **[Download Full Technical Industry Report (PDF)](./Report/BMS_Project_Report(1).pdf)**
+
+---
+
+## 📸 Project Architecture & Simulation Results
 ![Full Simulink Model](Screenshots/model.png)
+*Figure 1: Complete Block Architecture showing Simscape Plant Layer and Control Subsystem Integration.*
 
-## Project Overview
-This repository contains a Battery Management System (BMS) developed using MATLAB and Simulink for Electric Vehicle (EV) applications. The project focuses on battery monitoring, safety protection, fault detection, passive cell balancing, and battery state estimation. The simulation demonstrates how a BMS can monitor battery health, protect the battery pack, and improve operational safety.
-
----
-
-## Key Features
-
-### Battery Safety & Protection
-
-The BMS continuously monitors battery operating conditions and applies protection logic when abnormal conditions are detected.
-
-Protection functions include:
-
-* Over Voltage (OV)
-* Under Voltage (UV)
-* Over Current during Charging
-* Over Current during Discharging
-* Short Circuit Detection
-* Over Temperature (OT)
-* Under Temperature (UT)
-* Low State of Charge (SOC)
-
-When a fault is detected, the controller automatically disables charging or discharging to protect the battery pack.
+<table style="width:100%; display:table;">
+  <tr>
+    <td style="width:50%; text-align:center;">
+      <img src="Screenshots/fault.png" alt="Fault Detection Transient Waves" style="max-width:100%;"/>
+      <br/><b>Figure 2: Over-Temperature Isolation Logic Waveforms (Fault Code 32)</b>
+    </td>
+    <td style="width:50%; text-align:center;">
+      <img src="Screenshots/cellbalancing.png" alt="Passive Cell Balancing Convergence" style="max-width:100%;"/>
+      <br/><b>Figure 3: Passive Shunt Equalization and Voltage Trajectory Convergence</b>
+    </td>
+  </tr>
+</table>
 
 ---
 
-### State Estimation
-
-The simulation estimates important battery parameters including:
-
-* State of Charge (SOC)
-* State of Voltage (SOV)
-
-SOC is estimated using Coulomb Counting, while SOV is continuously monitored to evaluate battery operating conditions.
+## 🛠️ Project Overview
+This repository contains an automotive-grade Battery Management System (BMS) developed using MATLAB and Simulink for Electric Vehicle (EV) applications. The project focuses on real-time battery parameter monitoring, ISO 26262 functional safety protection alignment, deterministic fault mapping, passive cell balancing loops, and continuous state estimation. The simulation comprehensively demonstrates how an embedded controller protects multi-cell packs and optimizes operational lifespans.
 
 ---
 
-### Battery Fault Logging
+## ⚡ Key Features
 
-The controller combines multiple protection events into an 8-bit Fault Code.
-
-Fault Mapping:
-
-| Fault                    | Bit   |
-| ------------------------ | ----- |
-| Over Voltage             | Bit 0 |
-| Under Voltage            | Bit 1 |
-| Over Current (Charge)    | Bit 2 |
-| Over Current (Discharge) | Bit 3 |
-| Short Circuit            | Bit 4 |
-| Over Temperature         | Bit 5 |
-| Under Temperature        | Bit 6 |
-| Low SOC                  | Bit 7 |
-
-Example:
-
-If an Over Temperature fault occurs:
-
-* OT = 1
-* Charge Enable = 0
-* Discharge Enable = 0
-* Fault Code = 32
+### 1. Battery Safety & Protection (ASIL-D Alignment)
+The BMS continuously monitors the multi-cell pack telemetry and applies strict defensive protection logic when parameters breach electrochemical safety envelopes.
+* **Over Voltage (OV)** | **Under Voltage (UV)**
+* **Over Current during Charging** | **Over Current during Discharging**
+* **Short Circuit Detection (Sub-millisecond Interlock)**
+* **Over Temperature (OT)** | **Under Temperature (UT)**
+* **Low State of Charge (Critical Low SOC Hysteresis)**
 
 ---
 
-### Passive Cell Balancing
-
-The project implements passive balancing for a four-cell battery pack.
-
-Balancing algorithm:
-
-* Detects the minimum cell voltage (Vmin)
-* Compares each cell with the minimum voltage
-* Activates balancing for cells whose voltage exceeds the balancing threshold
-* Stops balancing automatically after voltage equalization
-
-This improves battery life and maintains voltage uniformity among cells.
+### 2. State Estimation
+The simulation estimates critical battery parameters with high accuracy:
+* **State of Charge (SOC):** Modeled via high-fidelity Coulomb Counting (Ampere-Hour Integration) tracking discrete charging and discharging load trends.
+* **State of Voltage (SOV):** Continuously logs internal cell potentials and accounts for transient diffusion dynamics.
 
 ---
 
-## MATLAB & Simulink Features
+### 3. Centralized 8-Bit Fault Logging Registry
+To optimize bandwidth across standard automotive CAN bus frames, the controller packs multiple asynchronous protection events into a single compressed **8-bit Fault Code (`uint8`)**:
 
-* MATLAB Function Blocks
-* Simulink Modeling
-* Simscape Battery Components
-* Dashboard Blocks
-* Scope Visualization
-* Signal Routing using Bus and Mux Blocks
+| Monitored Fault System | Bit Placement | Binary Decimal Value | Threshold Boundaries |
+| :--- | :---: | :---: | :--- |
+| **Over Voltage (OV)** | Bit 0 | 1 | Pack Voltage > 54.0 V |
+| **Under Voltage (UV)** | Bit 1 | 2 | Pack Voltage < 42.0 V |
+| **Over Current (Charge)** | Bit 2 | 4 | Input Current < -5.0 A |
+| **Over Current (Discharge)** | Bit 3 | 8 | Output Current > 8.0 A |
+| **Short Circuit (SC)** | Bit 4 | 16 | Shock Current ≥ 20.0 A |
+| **Over Temperature (OT)** | Bit 5 | 32 | Core Temperature > 60.0 °C |
+| **Under Temperature (UT)** | Bit 6 | 64 | Core Temperature < 0.0 °C |
+| **Low SOC Flag** | Bit 7 | 128 | Capacity Level ≤ 20% |
 
----
-
-## Simulation Results
-
-The simulation successfully demonstrates:
-
-* Battery protection logic
-* Charge and discharge enable control
-* SOC estimation
-* SOV monitoring
-* Fault detection
-* Bit-mapped fault codes
-* Passive cell balancing
-* Dashboard visualization
+> 📑 **Example Execution:** If an Over-Temperature fault occurs: Core registers `OT = 1`, safety contactors trip (`Charge_Enable = 0`, `Discharge_Enable = 0`), and the CAN-ready diagnostic word broadcasts `Fault Code = 32`.
 
 ---
 
-## Folder Structure
+### 4. Deterministic Passive Cell Balancing
+The algorithm monitors a four-cell series configuration suffering from manufacturing divergence:
+* Continuously tracks and logs the absolute dynamic minimum cell voltage ($V_{min\_ref}$).
+* Evaluates cell-to-cell delta matrices: $V_{n} - V_{min\_ref}$.
+* Activates individual bypass bleeding shunt switches (`Bal_n = 1`) for any cell exceeding the target tolerance window ($\Delta V_{min} = 20\text{ m V}$).
+* Automatically breaks the shunts once voltage equilibrium is achieved across the pack.
 
+---
+
+## 💻 MATLAB & Simulink Framework
+* **MATLAB Function Blocks:** Running embedded-ready code optimization scripts.
+* **Simscape Battery Components:** Simulating complex non-linear cell physical chemistry.
+* **Dashboard Gauges & Lamps:** Providing interactive real-time HMI controls.
+* **Structured Bus Elements:** Decoupling high-voltage power paths from logic signaling.
+
+---
+
+## 📂 Folder Structure
 ```text
 EV-BMS-Dashboard-Simulation
-
 ├── Simulink_Model/
 │   └── BMS_Controller.slx
-│
 ├── MATLAB_Code/
 │   ├── BMS_Controller.m
 │   └── Cell_Balancing.m
-│
 ├── Screenshots/
-│   ├── Full_Model.png
-│   ├── Dashboard.png
-│   ├── Fault_Detection.png
-│   ├── Cell_Balancing.png
-│   └── Simulation_Results.png
-│
+│   ├── model.png          # Main Model Image
+│   ├── fault.png          # Fault Waveforms Graph
+│   └── cellbalancing.png  # Balancing Waveforms Graph
 ├── Report/
 │   └── BMS_Project_Report.pdf
-│
 └── README.md
-```
-
----
-
-## Technologies Used
-
-* MATLAB
-* Simulink
-* Simscape Electrical
-* MATLAB Function Blocks
-* Dashboard Components
-
----
-
-## Future Improvements
-
-* CAN Bus Communication
-* Real-Time Dashboard
-* Hardware Integration using Arduino or STM32
-* Battery State of Health (SOH) Estimation
-* Cloud-based Battery Monitoring
-
----
-
-## Author
-
-**Soumya Shukla**
-
-B.Tech Electrical & Electronics Engineering (6th Semester)
-
-Interested in:
-
-* Electric Vehicles (EV)
-* Battery Management Systems (BMS)
-* Embedded Systems
-* MATLAB & Simulink
-* Power Electronics
-
-
