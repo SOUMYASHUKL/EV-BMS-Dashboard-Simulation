@@ -100,19 +100,20 @@ EV-BMS-Dashboard-Simulation
 ├── Report/
 │   └── BMS_Project_Report.pdf
 └── README.md
+
+
 🛠️ Technologies Used
-MATLAB & Simulink
+* MATLAB & Simulink
+* Simscape Electrical (Physical Systems Modeling)
+* Embedded C Control Logic Blocks
 
-Simscape Electrical (Physical Systems Modeling)
 
-Embedded C Control Logic Blocks
 
 🚀 Future Horizons
-Physical CAN Bus Network Protocols Streaming Integration.
+* Physical CAN Bus Network Protocols Streaming Integration.
+* Extended Kalman Filtering (EKF) configurations for State of Health (SOH) Estimation.
+* Microcontroller target code compilation for ARM Cortex-M (STM32) hardware platforms.
 
-Extended Kalman Filtering (EKF) configurations for State of Health (SOH) Estimation.
-
-Microcontroller target code compilation for ARM Cortex-M (STM32) hardware platforms.
 
 👤 Author
 Soumya Shukla
