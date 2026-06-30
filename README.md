@@ -39,19 +39,20 @@ The BMS continuously monitors the multi-cell pack telemetry and applies strict d
 * **Over Current during Charging** | **Over Current during Discharging**
 * **Short Circuit Detection (Sub-millisecond Interlock)**
 * **Over Temperature (OT)** | **Under Temperature (UT)**
-* **Low State of Charge (Critical Low SOC Hysteresis)**
+* **Low State of Charge (Critical Low SOC Hysteresis Loop)**
 
 ---
 
-### 2. State Estimation
-The simulation estimates critical battery parameters with high accuracy:
-* **State of Charge (SOC):** Modeled via high-fidelity Coulomb Counting (Ampere-Hour Integration) tracking discrete charging and discharging load trends.
+### 2. High-Fidelity State Estimation
+The simulation dynamically tracks and estimates critical internal pack parameters with mathematical precision:
+* **State of Charge (SOC):** Modeled via discrete Coulomb Counting (Ampere-Hour Integration) handling continuous charging and discharging load trends seamlessly.
+* **State of Health (SOH):** Evaluated via a Throughput Aging Estimation model that tracks degradation based on the absolute current integration loop over time, bound within a 0.70 end-of-life framework.
 * **State of Voltage (SOV):** Continuously logs internal cell potentials and accounts for transient diffusion dynamics.
 
 ---
 
 ### 3. Centralized 8-Bit Fault Logging Registry
-To optimize bandwidth across standard automotive CAN bus frames, the controller packs multiple asynchronous protection events into a single compressed **8-bit Fault Code (`uint8`)**:
+To optimize bandwidth across standard automotive CAN bus frames, the controller packs multiple asynchronous protection events into a single compressed **8-bit Fault Code (`double/uint8`)**:
 
 | Monitored Fault System | Bit Placement | Binary Decimal Value | Threshold Boundaries |
 | :--- | :---: | :---: | :--- |
@@ -62,7 +63,7 @@ To optimize bandwidth across standard automotive CAN bus frames, the controller 
 | **Short Circuit (SC)** | Bit 4 | 16 | Shock Current ≥ 20.0 A |
 | **Over Temperature (OT)** | Bit 5 | 32 | Core Temperature > 60.0 °C |
 | **Under Temperature (UT)** | Bit 6 | 64 | Core Temperature < 0.0 °C |
-| **Low SOC Flag** | Bit 7 | 128 | Capacity Level ≤ 20% |
+| **Low SOC Flag** | Bit 7 | 128 | Capacity Level ≤ 20% (Recovers ≥ 25%) |
 
 > 📑 **Example Execution:** If an Over-Temperature fault occurs: Core registers `OT = 1`, safety contactors trip (`Charge_Enable = 0`, `Discharge_Enable = 0`), and the CAN-ready diagnostic word broadcasts `Fault Code = 32`.
 
@@ -72,16 +73,16 @@ To optimize bandwidth across standard automotive CAN bus frames, the controller 
 The algorithm monitors a four-cell series configuration suffering from manufacturing divergence:
 * Continuously tracks and logs the absolute dynamic minimum cell voltage ($V_{min\_ref}$).
 * Evaluates cell-to-cell delta matrices: $V_{n} - V_{min\_ref}$.
-* Activates individual bypass bleeding shunt switches (`Bal_n = 1`) for any cell exceeding the target tolerance window ($\Delta V_{min} = 20\text{ m V}$).
+* Activates individual bypass bleeding shunt switches (`Bal_n = 1`) for any cell exceeding the target tolerance window ($\Delta V = 30\text{ mV}$), provided cell potential is above $3.00\text{ V}$.
 * Automatically breaks the shunts once voltage equilibrium is achieved across the pack.
 
 ---
 
 ## 💻 MATLAB & Simulink Framework
-* **MATLAB Function Blocks:** Running embedded-ready code optimization scripts.
-* **Simscape Battery Components:** Simulating complex non-linear cell physical chemistry.
-* **Dashboard Gauges & Lamps:** Providing interactive real-time HMI controls.
-* **Structured Bus Elements:** Decoupling high-voltage power paths from logic signaling.
+* **MATLAB Function Blocks:** Running embedded-ready code optimization scripts with discrete state tracking.
+* **Simscape Battery Components:** Simulating complex non-linear cell physical chemistry and electrical load dynamics.
+* **Dashboard Gauges & Lamps:** Providing interactive real-time HMI controls for parameter variant testing.
+* **Structured Bus Elements:** Decoupling high-voltage power paths from low-voltage control logic signaling.
 
 ---
 
@@ -91,7 +92,7 @@ EV-BMS-Dashboard-Simulation
 ├── Simulink_Model/
 │   └── BMS_Controller.slx
 ├── MATLAB_Code/
-│   ├── BMS_Controller.m
+│   ├── BMS_Controller_Day10_Final.m
 │   └── Cell_Balancing.m
 ├── Screenshots/
 │   ├── model.png          # Main Model Image
@@ -103,21 +104,16 @@ EV-BMS-Dashboard-Simulation
 
 
 🛠️ Technologies Used
-* MATLAB & Simulink
+* MATLAB & Simulink (R2024b or newer recommended)
 * Simscape Electrical (Physical Systems Modeling)
-* Embedded C Control Logic Blocks
-
-
+* Embedded MATLAB Coder Control Logic Blocks
 
 🚀 Future Horizons
 * Physical CAN Bus Network Protocols Streaming Integration.
-* Extended Kalman Filtering (EKF) configurations for State of Health (SOH) Estimation.
-* Microcontroller target code compilation for ARM Cortex-M (STM32) hardware platforms.
-
+* Extended Kalman Filtering (EKF) configurations for adaptive SOC tracking under dynamic stress cycles.
+* Microcontroller target production code compilation for ARM Cortex-M (STM32) hardware-in-the-loop (HIL) platforms.
 
 👤 Author
 Soumya Shukla
-
-B.Tech in Electrical & Electronics Engineering (6th Semester)
-
+B.Tech in Electrical & Electronics Engineering (3rd Year)
 Core Interests: Electric Vehicles (EVs), Battery Management Systems (BMS), Embedded Control Firmware, Power Electronics.
